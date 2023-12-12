@@ -1,0 +1,17 @@
+{
+  "name": "pleasure_bot",
+  "version": "1.0.0",
+  "description": "psychology bot for telegram on TS and Telegraph",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Stas Kobles",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "telegraf": "^4.15.3"
+  }
+}
