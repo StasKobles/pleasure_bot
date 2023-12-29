@@ -8,12 +8,12 @@ export interface MyContext extends Context {
       | "start"
       | "subscribe"
       | "pleasureList"
-      | 'addPleasure'
+      | "addPleasure"
       | "getQuest"
       | "changeTime"
-      | 'questAnswer'
+      | "questAnswer"
       | undefined;
-    todayTask: string;
+    todayTask: { taskId: number; text: string } | undefined;
     activeRegistration: boolean;
   };
 }

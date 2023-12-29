@@ -402,3 +402,4 @@ FodyWeavers.xsd
 
 #dist
 dist/
+.vscode/

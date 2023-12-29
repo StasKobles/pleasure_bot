@@ -21,44 +21,71 @@ async function getUsersAndTheirTimes() {
   }
 }
 
-// Функция для получения случайного задания
 async function getRandomTask(userId: number, excludeTaskId: number) {
   try {
-    // Получаем тексты 50 заданий из default_tasks
+    // Получаем список выполненных заданий пользователя
+    const completedTasksRes = await pool.query(
+      "SELECT completed_tasks FROM users WHERE user_id = $1",
+      [userId]
+    );
+    const completedTasks = completedTasksRes.rows[0]?.completed_tasks || [];
+
+    // Получаем список всех заданий по умолчанию
     const defaultTasksRes = await pool.query(
       "SELECT task_id, quest_text FROM default_tasks"
     );
     const defaultTasks = defaultTasksRes.rows;
 
-    let userTasks: any[] = [];
+    // Получаем список незавершенных заданий пользователя, исключая текущее активное задание
+    const userTasksRes = await pool.query(
+      "SELECT task_id, quest_text FROM tasks WHERE user_id = $1 AND is_completed = FALSE AND task_id != $2",
+      [userId, excludeTaskId]
+    );
+    const userTasks = userTasksRes.rows;
 
-    if (excludeTaskId > 50) {
-      // Получаем задания текущего пользователя
-      const userTasksRes = await pool.query(
-        "SELECT task_id, quest_text FROM tasks WHERE user_id = $1 AND is_completed = FALSE AND task_id != $2",
-        [userId, excludeTaskId]
-      );
-      userTasks = userTasksRes.rows;
-    }
-
-    // Фильтруем default_tasks, исключая те, которые уже есть у пользователя
-    const availableTasks = defaultTasks.filter(
-      (task) =>
-        !userTasks.some((userTask) => userTask.quest_text === task.quest_text)
+    // Фильтруем список заданий по умолчанию и пользовательских заданий, исключая те, которые уже выполнены
+    const filteredDefaultTasks = defaultTasks.filter(
+      (task) => !completedTasks.includes(task.task_id)
+    );
+    const filteredUserTasks = userTasks.filter(
+      (task) => !completedTasks.includes(task.task_id)
     );
 
-    if (availableTasks.length > 0) {
-      // Выбираем случайное задание из доступных
-      const randomTask: { quest_text: string; task_id: number } =
-        availableTasks[Math.floor(Math.random() * availableTasks.length)];
-      return randomTask;
+    // Вероятность выбора задания из списка пользователя
+    const userTaskProbability = 0.7;
+    let randomTask;
+
+    // Пытаемся выбрать задание из списка пользователя с определенной вероятностью
+    if (filteredUserTasks.length > 0 && Math.random() < userTaskProbability) {
+      randomTask = filteredUserTasks[Math.floor(Math.random() * filteredUserTasks.length)];
     } else {
-      return null;
+      // Если задание из списка пользователя не выбрано, используем взвешенный выбор
+      const tasksWithWeights = [
+        ...filteredUserTasks.map((task) => ({ item: task, weight: 2 })), // Пользовательские задания имеют больший вес
+        ...filteredDefaultTasks.map((task) => ({ item: task, weight: 1 })), // Задания по умолчанию имеют стандартный вес
+      ];
+
+      randomTask = weightedRandomSelect(tasksWithWeights);
     }
+
+    return randomTask || null;
   } catch (error) {
     console.error("Ошибка при получении случайного задания из базы:", error);
     return null;
   }
+}
+
+
+// Функция для взвешенного случайного выбора
+function weightedRandomSelect<T>(items: Array<{ item: T; weight: number }>): T {
+  const totalWeight = items.reduce((sum, { weight }) => sum + weight, 0);
+  let random = Math.random() * totalWeight;
+
+  for (const { item, weight } of items) {
+    if (random < weight) return item;
+    random -= weight;
+  }
+  return items[items.length - 1].item; // На случай числовой погрешности
 }
 
 async function getUserTaskText(taskId: number) {
@@ -172,6 +199,7 @@ export async function sendDailyMessage(bot: Telegraf<MyContext>) {
     if (taskText) {
       await ctx.reply(`Ваше задание: ${taskText}`);
     }
+    ctx.session.todayTask = { taskId: taskId, text: taskText };
     await ctx.reply(messages.completionMessage);
     ctx.session.activeStep = "questAnswer";
   });

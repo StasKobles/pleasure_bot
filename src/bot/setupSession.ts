@@ -8,7 +8,7 @@ export const setupSession: Middleware<MyContext> = (ctx, next) => {
       gender: "Ж",
       activeStep: undefined,
       activeRegistration: false,
-      todayTask: "",
+      todayTask: undefined,
     };
   }
 

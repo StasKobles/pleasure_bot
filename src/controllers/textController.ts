@@ -48,7 +48,14 @@ export const textController = (bot: Telegraf<MyContext>) => {
             const userMessage = ctx.message;
 
             // Формирование сообщения для админского канала
-            const adminMessage = `#${user.id} ${userMessage.caption}`;
+            const adminMessage = `#${user.id}
+            Задание: ${ctx.session.todayTask?.text}
+            ${userMessage.caption}`;
+
+            await pool.query(
+              "UPDATE users SET completed_tasks = array_append(completed_tasks, $1) WHERE user_id = $2",
+              [ctx.session.todayTask?.taskId, userId]
+            );
 
             // Пересылка сообщения в админский канал
             await ctx.telegram.sendPhoto(
