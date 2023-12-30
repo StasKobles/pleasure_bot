@@ -13,8 +13,8 @@ export const timeButtons = Markup.inlineKeyboard([
   ],
 ]);
 
-export const questConfirmButtons = (task_id: any) =>
+export const questConfirmButtons = (task_id: any, includeReplaceButton: boolean) =>
   Markup.inlineKeyboard([
-    Markup.button.callback("Заменить задание", `replace_task_${task_id}`),
+    ...(includeReplaceButton ? [Markup.button.callback("Заменить задание", `replace_task_${task_id}`)] : []),
     Markup.button.callback("Принять задание", `accept_task_${task_id}`),
   ]);

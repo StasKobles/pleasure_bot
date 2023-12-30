@@ -53,10 +53,10 @@ export const textController = (bot: Telegraf<MyContext>) => {
             ${userMessage.caption}`;
 
             await pool.query(
-              "UPDATE users SET completed_tasks = array_append(completed_tasks, $1) WHERE user_id = $2",
-              [ctx.session.todayTask?.taskId, userId]
+              "UPDATE users SET is_completed_today = TRUE, completed_tasks = array_append(completed_tasks, $1) WHERE user_id = $2",
+              [active_task, userId]
             );
-
+              
             // Пересылка сообщения в админский канал
             await ctx.telegram.sendPhoto(
               adminChatId,

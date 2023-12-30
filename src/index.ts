@@ -11,6 +11,7 @@ import { MyContext } from "./models/session";
 import { resetIsSentToday } from "./services/schedule/resetIsSentToday";
 import { sendDailyMessage } from "./services/schedule/sendDailyMessage";
 import { channelMessagesController } from "./controllers/channelMessagesController";
+import { sendReminder } from "./services/schedule/questReminder";
 
 const bot = new Telegraf<MyContext>(botToken);
 
@@ -31,6 +32,8 @@ channelMessagesController(bot);
 
 // Запуск планировщика для регулярной отправки сообщений
 cron.schedule("* * * * *", () => sendDailyMessage(bot));
+// Напоминалка о том, что надо выполнить задание
+cron.schedule("* * * * *", () => sendReminder(bot));
 // Запуск функции resetIsSentToday каждый день в 0:00
 cron.schedule("0 0 * * *", resetIsSentToday);
 

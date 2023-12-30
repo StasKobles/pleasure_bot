@@ -14,6 +14,7 @@ export interface MyContext extends Context {
       | "questAnswer"
       | undefined;
     todayTask: { taskId: number; text: string } | undefined;
+    isTaskChanged: boolean;
     activeRegistration: boolean;
   };
 }

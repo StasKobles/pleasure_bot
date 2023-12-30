@@ -2,11 +2,11 @@ import pool from "../sql";
 
 export async function resetIsSentToday() {
     try {
-      // Обновление is_sent_today у всех пользователей на false
-      await pool.query("UPDATE users SET is_sent_today = FALSE");
+      // Обновление is_sent_today и is_completed_today у всех пользователей на false
+      await pool.query("UPDATE users SET is_sent_today = FALSE, is_completed_today = FALSE, is_reminder_sent = FALSE");
   
-      console.log("Поле is_sent_today успешно обновлено.");
+      console.log("Поля is_sent_today и is_completed_today успешно обновлены.");
     } catch (error) {
-      console.error("Ошибка при обновлении поля is_sent_today:", error);
+      console.error("Ошибка при обновлении полей is_sent_today и is_completed_today:", error);
     }
-  }
+}

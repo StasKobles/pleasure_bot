@@ -57,7 +57,8 @@ async function getRandomTask(userId: number, excludeTaskId: number) {
 
     // Пытаемся выбрать задание из списка пользователя с определенной вероятностью
     if (filteredUserTasks.length > 0 && Math.random() < userTaskProbability) {
-      randomTask = filteredUserTasks[Math.floor(Math.random() * filteredUserTasks.length)];
+      randomTask =
+        filteredUserTasks[Math.floor(Math.random() * filteredUserTasks.length)];
     } else {
       // Если задание из списка пользователя не выбрано, используем взвешенный выбор
       const tasksWithWeights = [
@@ -74,7 +75,6 @@ async function getRandomTask(userId: number, excludeTaskId: number) {
     return null;
   }
 }
-
 
 // Функция для взвешенного случайного выбора
 function weightedRandomSelect<T>(items: Array<{ item: T; weight: number }>): T {
@@ -145,7 +145,7 @@ export async function sendDailyMessage(bot: Telegraf<MyContext>) {
           await bot.telegram.sendMessage(
             user.user_id,
             `Ваше задание: ${randomTask.quest_text}`,
-            questConfirmButtons(randomTask.task_id)
+            questConfirmButtons(randomTask.task_id, true)
           );
 
           // Обновление активного задания пользователя
@@ -164,21 +164,24 @@ export async function sendDailyMessage(bot: Telegraf<MyContext>) {
     }
   }
   bot.action(/replace_task_(\d+)/, async (ctx) => {
-    ctx.deleteMessage();
     const taskId = parseInt(ctx.match[1]);
     const userId = ctx.from?.id;
 
     // Получение и отправка нового задания
     const newTask = await getRandomTask(userId || 0, taskId);
     if (newTask) {
+      ctx.deleteMessage();
       await ctx.reply(
         `Ваше новое задание: ${newTask.quest_text}`,
-        questConfirmButtons(newTask.task_id)
+        questConfirmButtons(newTask.task_id, !ctx.session.isTaskChanged)
       );
       await pool.query("UPDATE users SET active_task = $1 WHERE user_id = $2", [
         newTask.task_id,
         userId,
       ]);
+      if (!ctx.session.isTaskChanged) {
+        ctx.session.isTaskChanged = true;
+      }
     } else {
       await ctx.reply("Больше нет доступных заданий.");
     }
@@ -201,6 +204,7 @@ export async function sendDailyMessage(bot: Telegraf<MyContext>) {
     }
     ctx.session.todayTask = { taskId: taskId, text: taskText };
     await ctx.reply(messages.completionMessage);
+    ctx.session.isTaskChanged = false;
     ctx.session.activeStep = "questAnswer";
   });
 }

@@ -9,6 +9,7 @@ export const setupSession: Middleware<MyContext> = (ctx, next) => {
       activeStep: undefined,
       activeRegistration: false,
       todayTask: undefined,
+      isTaskChanged:false,
     };
   }
 
