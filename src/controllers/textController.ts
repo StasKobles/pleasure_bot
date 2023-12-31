@@ -5,6 +5,7 @@ import { MyContext } from "../models/session";
 import { currentQuestTaskHandler } from "./currentQuestTaskHandler";
 import pool from "../services/sql";
 import { adminChatId } from "../config/config";
+import { helpTextHandler } from "./helpTextHandler";
 
 export const textController = (bot: Telegraf<MyContext>) => {
   bot.on("text", async (ctx) => {
@@ -19,6 +20,15 @@ export const textController = (bot: Telegraf<MyContext>) => {
     }
     if (ctx.session.activeStep === "questAnswer") {
       currentQuestTaskHandler(ctx);
+    }
+    if (ctx.session.activeStep === "questHelp") {
+      helpTextHandler(ctx, "quests");
+    }
+    if (ctx.session.activeStep === "botHelp") {
+      helpTextHandler(ctx, "bot");
+    }
+    if (ctx.session.activeStep === "subHelp") {
+      helpTextHandler(ctx, "subscription");
     }
   });
   bot.on("photo", async (ctx) => {
