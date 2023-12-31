@@ -12,6 +12,9 @@ export interface MyContext extends Context {
       | "getQuest"
       | "changeTime"
       | "questAnswer"
+      | 'subHelp'
+      | 'botHelp'
+      | 'questHelp'
       | undefined;
     todayTask: { taskId: number; text: string } | undefined;
     isTaskChanged: boolean;
