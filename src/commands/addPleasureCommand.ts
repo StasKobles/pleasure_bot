@@ -2,6 +2,8 @@ import { Markup, NarrowedContext, Telegraf } from "telegraf";
 import pool from "../services/sql";
 import { MyContext } from "../models/session";
 import { Update, Message } from "telegraf/typings/core/types/typegram";
+import * as messages from "../messages/main";
+
 
 // export const pleasureListCommand = (bot: Telegraf<MyContext>) => {
 //   async function handlePleasureList(ctx: MyContext) {
@@ -52,10 +54,10 @@ export const addPleasureCommand = (bot: Telegraf<MyContext>) => {
       type === "registration" ? "pleasureList" : "addPleasure";
     try {
       ctx.reply(
-        `Ваш список заданий готов! Хотите добавить свои дополнительные задания?`,
+        messages.taskListPrompt,
         Markup.inlineKeyboard([
           Markup.button.callback(
-            "Да, добавить свое задание",
+            "Добавить свое задание",
             "addPleasureTextInput_action"
           ),
           Markup.button.callback("Далее", "changeTime_action"),
@@ -79,7 +81,7 @@ export const addPleasureCommand = (bot: Telegraf<MyContext>) => {
 
   bot.action("addPleasureTextInput_action", async (ctx) => {
     await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
-    await ctx.reply("Введите свое задание!");
+    await ctx.reply("Опиши свое удовольствие и отправь его мне.");
   });
 
   bot.action("resetButton_action", async (ctx) => {

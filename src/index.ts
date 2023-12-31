@@ -12,6 +12,7 @@ import { resetIsSentToday } from "./services/schedule/resetIsSentToday";
 import { sendDailyMessage } from "./services/schedule/sendDailyMessage";
 import { channelMessagesController } from "./controllers/channelMessagesController";
 import { sendReminder } from "./services/schedule/questReminder";
+import { currentQuestCommand } from "./commands/currentQuestCommand";
 
 const bot = new Telegraf<MyContext>(botToken);
 
@@ -25,6 +26,8 @@ subscriptionCommand(bot);
 addPleasureCommand(bot);
 
 changeTimeCommand(bot);
+
+currentQuestCommand(bot);
 
 textController(bot);
 

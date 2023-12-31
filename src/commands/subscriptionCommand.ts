@@ -40,7 +40,7 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
 
       await ctx.replyWithInvoice({
         provider_token: yooKassaApiKey,
-        start_parameter: "get_subscription", // Уникальный параметр
+        start_parameter: `INV-${ctx.from?.id}-${Date.now()}`, // Уникальный параметр
         title: 'Подписка на бот "33 удовольствия"',
         description: 'Оплата подписки на бот "33 удовольствия"',
         currency: "RUB",

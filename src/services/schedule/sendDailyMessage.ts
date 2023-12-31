@@ -88,7 +88,7 @@ function weightedRandomSelect<T>(items: Array<{ item: T; weight: number }>): T {
   return items[items.length - 1].item; // На случай числовой погрешности
 }
 
-async function getUserTaskText(taskId: number) {
+export async function getUserTaskText(taskId: number) {
   try {
     const taskRes = await pool.query(
       "SELECT quest_text FROM tasks WHERE task_id = $1",
@@ -101,7 +101,7 @@ async function getUserTaskText(taskId: number) {
   }
 }
 
-async function getDefaultTaskText(taskId: number) {
+export async function getDefaultTaskText(taskId: number) {
   try {
     const taskRes = await pool.query(
       "SELECT quest_text FROM default_tasks WHERE task_id = $1",
