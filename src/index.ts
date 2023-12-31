@@ -13,7 +13,7 @@ import { sendDailyMessage } from "./services/schedule/sendDailyMessage";
 import { channelMessagesController } from "./controllers/channelMessagesController";
 import { sendReminder } from "./services/schedule/questReminder";
 import { currentQuestCommand } from "./commands/currentQuestCommand";
-import { helpCommand } from "./commands/heplCommand";
+import { helpCommand } from "./commands/helpCommand";
 
 const bot = new Telegraf<MyContext>(botToken);
 

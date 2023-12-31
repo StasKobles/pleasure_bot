@@ -18,7 +18,7 @@ export const helpCommand = (bot: Telegraf<MyContext>) => {
 
   // Обработчики для каждой кнопки
   bot.action("help_subscription", async (ctx) => {
-    ctx.session.activeStep === "subHelp";
+    ctx.session.activeStep = "subHelp";
     await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
 
     // Логика обработки запроса помощи по подписке
@@ -26,7 +26,7 @@ export const helpCommand = (bot: Telegraf<MyContext>) => {
   });
 
   bot.action("help_bot_functionality", async (ctx) => {
-    ctx.session.activeStep === "botHelp";
+    ctx.session.activeStep = "botHelp";
 
     await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
 
@@ -35,7 +35,7 @@ export const helpCommand = (bot: Telegraf<MyContext>) => {
   });
 
   bot.action("help_tasks", async (ctx) => {
-    ctx.session.activeStep === "subHelp";
+    ctx.session.activeStep = "subHelp";
 
     await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
 
