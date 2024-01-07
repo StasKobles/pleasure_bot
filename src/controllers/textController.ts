@@ -1,16 +1,15 @@
-import { Composer, Telegraf } from "telegraf";
+import { Telegraf } from "telegraf";
+import { message } from "telegraf/filters";
 import { addPleasureTextHandler } from "../commands/addPleasureCommand";
 import { startTextHandler } from "../commands/startCommand";
-import { MyContext } from "../models/session";
-import { currentQuestTaskHandler } from "./currentQuestTaskHandler";
-import pool from "../services/sql";
 import { adminChatId } from "../config/config";
+import { MyContext } from "../models/session";
+import pool from "../services/sql";
+import { currentQuestTaskHandler } from "./currentQuestTaskHandler";
 import { helpTextHandler } from "./helpTextHandler";
-import { message } from "telegraf/filters";
 
 export const textController = (bot: Telegraf<MyContext>) => {
-  const textComposer = new Composer<MyContext>();
-  textComposer.on(message("text"), async (ctx) => {
+  bot.on(message("text"), async (ctx) => {
     if (ctx.session.activeStep === "start") {
       startTextHandler(ctx);
     }
