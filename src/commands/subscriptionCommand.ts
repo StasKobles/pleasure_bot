@@ -1,11 +1,18 @@
 import { Markup, Telegraf } from "telegraf";
 import * as messages from "../messages/main";
-import { yooKassaApiKey } from "../config/config";
+import {
+  robokassaPassword1,
+  robokassaPassword2,
+  shopId,
+  subscriptionPrice,
+  yooKassaApiKey,
+} from "../config/config";
 import pool from "../services/sql";
+import { MD5 } from "crypto-js";
 import { MyContext } from "../models/session";
 
 export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
-  bot.command("subscribe", async (ctx) => {
+  const subscribe = async (ctx: MyContext) => {
     const userId = ctx.from?.id;
 
     try {
@@ -21,32 +28,62 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
       if (isSubscribed) {
         await ctx.reply("Вы уже подписаны.");
       } else {
-        await ctx.reply(
-          messages.preSubscriptionText,
-          Markup.inlineKeyboard([
-            Markup.button.callback("Оформить подписку", "subscribe_button"),
-          ])
-        );
+        const invoiceId = 1000;
+        const signatureValue1 = MD5(
+          `${shopId}:${subscriptionPrice}:${invoiceId}:${robokassaPassword1}`
+        ).toString();
+        // const keyboard = Markup.inlineKeyboard([
+        //   Markup.button.url(
+        //     messages.preSubscriptionText,
+        //     `https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=${shopId}&OutSum=${subscriptionPrice}&InvoiceID=${invoiceId}&Description=Test&SignatureValue=${signatureValue1}&Recurring=true`
+        //   ),
+        // ]);
+        const keyboard = Markup.inlineKeyboard([
+          Markup.button.url(
+            messages.preSubscriptionText,
+            `https://auth.robokassa.ru/RecurringSubscriptionPage/Subscription/Subscribe?SubscriptionId=0a1bf99b-968f-485c-9fb4-587268ebab49`
+          ),
+        ]);
+
+        await ctx.reply("Ссылка на оплату", {
+          reply_markup: keyboard.reply_markup,
+        });
+        const signatureValue2 = MD5(
+          `${shopId}:${userId}:${robokassaPassword2}`
+        ).toString();
+        // await ctx.reply("Проверить оплату", {
+        //   reply_markup: Markup.inlineKeyboard([
+        //     Markup.button.url(
+        //       "Проверить оплату",
+        //       `https://auth.robokassa.ru/Merchant/WebService/Service.asmx/OpStateExt?MerchantLogin=${shopId}&InvoiceID=${invoiceId}&Signature=${signatureValue2}&istest=1`
+        //     ),
+        //   ]).reply_markup,
+        // });
       }
     } catch (error) {
       console.error("Ошибка при проверке подписки пользователя:", error);
       await ctx.reply("Произошла ошибка при проверке подписки.");
     }
+  };
+  bot.command("subscribe", async (ctx) => {
+    await subscribe(ctx);
   });
   bot.action("subscribe_button", async (ctx) => {
     try {
       await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
       await ctx.reply(messages.subscriptionWelcomeMessage);
 
-      await ctx.replyWithInvoice({
-        provider_token: yooKassaApiKey,
-        start_parameter: `INV-${ctx.from?.id}-${Date.now()}`, // Уникальный параметр
-        title: 'Подписка на бот "33 удовольствия"',
-        description: 'Оплата подписки на бот "33 удовольствия"',
-        currency: "RUB",
-        prices: [{ label: "Подписка", amount: 29900 }], // Цена в копейках
-        payload: `${ctx.from?.id}_${Date.now()}`,
-      });
+      await subscribe(ctx);
+
+      // await ctx.replyWithInvoice({
+      //   provider_token: yooKassaApiKey,
+      //   start_parameter: "get_subscription", // Уникальный параметр
+      //   title: 'Подписка на бот "33 удовольствия"',
+      //   description: 'Оплата подписки на бот "33 удовольствия"',
+      //   currency: "RUB",
+      //   prices: [{ label: "Подписка", amount: 29900 }], // Цена в копейках
+      //   payload: `${ctx.from?.id}_${Date.now()}`,
+      // });
     } catch (error) {
       console.error(error);
     }
@@ -89,18 +126,10 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
   });
 };
 
-
 // import { Markup, Telegraf } from "telegraf";
 // import * as messages from "../messages/main";
-// import {
-//   robokassaPassword1,
-//   robokassaPassword2,
-//   shopId,
-//   subscriptionPrice,
-//   yooKassaApiKey,
-// } from "../config/config";
+// import { yooKassaApiKey } from "../config/config";
 // import pool from "../services/sql";
-// import { MD5 } from "crypto-js";
 // import { MyContext } from "../models/session";
 
 // export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
@@ -120,30 +149,12 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
 //       if (isSubscribed) {
 //         await ctx.reply("Вы уже подписаны.");
 //       } else {
-//         const signatureValue1 = MD5(
-//           `${shopId}:${subscriptionPrice}:${userId}:${robokassaPassword1}`
-//         ).toString();
-//         const keyboard = Markup.inlineKeyboard([
-//           Markup.button.url(
-//             messages.preSubscriptionText,
-//             `https://auth.robokassa.ru/Merchant/Index.aspx?MerchantLogin=${shopId}&OutSum=${subscriptionPrice}&InvoiceID=${userId}&Description=Test&SignatureValue=${signatureValue1}&istest=1`
-//           ),
-//         ]);
-
-//         await ctx.reply("Ссылка на оплату", {
-//           reply_markup: keyboard.reply_markup,
-//         });
-//         const signatureValue2 = MD5(
-//           `${shopId}:${userId}:${robokassaPassword2}`
-//         ).toString();
-//         await ctx.reply("Проверить оплату", {
-//           reply_markup: Markup.inlineKeyboard([
-//             Markup.button.url(
-//               "Проверить оплату",
-//               `https://auth.robokassa.ru/Merchant/WebService/Service.asmx/OpStateExt?MerchantLogin=${shopId}&InvoiceID=${userId}&Signature=${signatureValue2}&istest=1`
-//             ),
-//           ]).reply_markup,
-//         });
+//         await ctx.reply(
+//           messages.preSubscriptionText,
+//           Markup.inlineKeyboard([
+//             Markup.button.callback("Оформить подписку", "subscribe_button"),
+//           ])
+//         );
 //       }
 //     } catch (error) {
 //       console.error("Ошибка при проверке подписки пользователя:", error);
@@ -157,7 +168,7 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
 
 //       await ctx.replyWithInvoice({
 //         provider_token: yooKassaApiKey,
-//         start_parameter: "get_subscription", // Уникальный параметр
+//         start_parameter: `INV-${ctx.from?.id}-${Date.now()}`, // Уникальный параметр
 //         title: 'Подписка на бот "33 удовольствия"',
 //         description: 'Оплата подписки на бот "33 удовольствия"',
 //         currency: "RUB",

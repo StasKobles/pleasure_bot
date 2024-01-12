@@ -14,6 +14,7 @@ import { channelMessagesController } from "./controllers/channelMessagesControll
 import { sendReminder } from "./services/schedule/questReminder";
 import { currentQuestCommand } from "./commands/currentQuestCommand";
 import { helpCommand } from "./commands/helpCommand";
+import { restApi } from "./utils/restApi/restApi";
 
 const bot = new Telegraf<MyContext>(botToken);
 
@@ -42,5 +43,7 @@ cron.schedule("* * * * *", () => sendDailyMessage(bot));
 cron.schedule("* * * * *", () => sendReminder(bot));
 // Запуск функции resetIsSentToday каждый день в 0:00
 cron.schedule("0 0 * * *", resetIsSentToday);
+
+restApi();
 
 bot.launch();
