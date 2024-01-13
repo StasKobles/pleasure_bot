@@ -6,6 +6,8 @@ export async function restApi() {
   const port = 3000; // Вы можете выбрать любой другой порт
 
   app.use(express.json()); // Для разбора JSON в запросах
+  app.use(express.urlencoded({ extended: true })); // Для разбора URL-encoded данных
+
 
   // Эмуляция функции updateSubscription
   const updateSubscription = (userId: string) => {
@@ -15,7 +17,7 @@ export async function restApi() {
 
   // Обработчик POST запроса
   app.post("/update-subscription", async (req: Request, res: Response) => {
-    console.log("Запрос на обновление подписки получен", req);
+    console.log("Запрос на обновление подписки получен", req.body);
 
     res.send(`Запрос на обновление подписки для пользователя получен`);
   });
