@@ -28,14 +28,11 @@ export const subscriptionTextHandler = async (
       "SELECT * FROM emails WHERE email = $1 AND user_id = $2",
       [email, ctx.from.id.toString()]
     );
-    
-    
-
     if (result.rowCount && result.rowCount > 0) {
       try {
         const updateResult = await pool.query(
           "UPDATE users SET subscription = true, email = $1 WHERE user_id = $2",
-          [email, ctx.from.id.toString()]
+          [email, ctx.from.id]
         );
 
         if (updateResult.rowCount && updateResult.rowCount > 0) {
