@@ -25,9 +25,10 @@ export const subscriptionTextHandler = async (
   // Запрос в базу данных
   try {
     const result = await pool.query(
-      "SELECT * FROM emails WHERE email = $1 AND user_id = CAST($2 AS VARCHAR)",
+      "SELECT * FROM emails WHERE email = $1 AND user_id = $2",
       [email, ctx.from.id.toString()]
     );
+    
     
 
     if (result.rowCount && result.rowCount > 0) {
@@ -42,7 +43,7 @@ export const subscriptionTextHandler = async (
             // Обновление user_id в таблице emails
             const updateEmailResult = await pool.query(
               "UPDATE emails SET user_id = $1 WHERE email = $2",
-              [ctx.from.id, email]
+              [ctx.from.id.toString(), email]
             );
 
             if (updateEmailResult.rowCount && updateEmailResult.rowCount > 0) {
