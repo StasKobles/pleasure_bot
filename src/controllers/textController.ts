@@ -7,6 +7,7 @@ import { MyContext } from "../models/session";
 import pool from "../services/sql";
 import { currentQuestTaskHandler } from "./currentQuestTaskHandler";
 import { helpTextHandler } from "./helpTextHandler";
+import { subscriptionTextHandler } from "../commands/subscriptionCommand";
 
 export const textController = (bot: Telegraf<MyContext>) => {
   bot.on(message("text"), async (ctx) => {
@@ -30,6 +31,9 @@ export const textController = (bot: Telegraf<MyContext>) => {
     }
     if (ctx.session.activeStep === "subHelp") {
       helpTextHandler(ctx, "subscription");
+    }
+    if (ctx.session.activeStep === "subscribe") {
+      subscriptionTextHandler(ctx);
     }
   });
   bot.on(message("photo"), async (ctx) => {

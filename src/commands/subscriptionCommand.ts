@@ -1,16 +1,64 @@
-import { Markup, Telegraf } from "telegraf";
+import { Markup, NarrowedContext, Telegraf } from "telegraf";
+import { Message, Update } from "telegraf/typings/core/types/typegram";
 import * as messages from "../messages/main";
-import {
-  robokassaPassword1,
-  robokassaPassword2,
-  shopId,
-  subscriptionPrice,
-  yooKassaApiKey,
-} from "../config/config";
-import pool from "../services/sql";
-import { MD5 } from "crypto-js";
 import { MyContext } from "../models/session";
+import pool from "../services/sql";
+import { isValidEmail } from "../utils/isValidEmail";
 
+export const subscriptionTextHandler = async (
+  ctx: NarrowedContext<
+    MyContext,
+    {
+      message: Update.New & Update.NonChannel & Message.TextMessage;
+      update_id: number;
+    }
+  >
+) => {
+  const email = ctx.message.text;
+
+  // Проверка валидности email
+  if (!isValidEmail(email)) {
+    ctx.reply("Неверный формат email. Пожалуйста, введите корректный email.");
+    return;
+  }
+
+  // Запрос в базу данных
+  try {
+    const result = await pool.query("SELECT * FROM emails WHERE email = $1", [
+      email,
+    ]);
+    if (result.rowCount && result.rowCount > 0) {
+      try {
+        const updateResult = await pool.query(
+          "UPDATE users SET subscription = true, email = $1 WHERE id = $2",
+          [email, ctx.from.id]
+        );
+
+        if (updateResult.rowCount && updateResult.rowCount > 0) {
+          ctx.session.activeStep = undefined;
+          console.log(
+            `Подписка обновлена для пользователя с ID: ${ctx.from.id}`
+          );
+          // Отправка уведомления пользователю, если необходимо
+        } else {
+          // Обработка ситуации, когда обновление не произошло
+        }
+      } catch (error) {
+        console.error(
+          "Ошибка при обновлении пользователя в базе данных:",
+          error
+        );
+        // Отправка сообщения об ошибке пользователю, если необходимо
+      }
+      // Дополнительная логика при необходимости
+    } else {
+      ctx.reply("Совпадений не найдено. Проверьте данные и отправьте снова.");
+    }
+  } catch (error) {
+    console.error("Ошибка при запросе к базе данных:", error);
+    ctx.reply("Произошла ошибка при обработке вашего запроса.");
+  }
+};
 export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
   const subscribe = async (ctx: MyContext) => {
     const userId = ctx.from?.id;
@@ -28,10 +76,10 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
       if (isSubscribed) {
         await ctx.reply("Вы уже подписаны.");
       } else {
-        const invoiceId = 1000;
-        const signatureValue1 = MD5(
-          `${shopId}:${subscriptionPrice}:${invoiceId}:${robokassaPassword1}`
-        ).toString();
+        // const invoiceId = 1000;
+        // const signatureValue1 = MD5(
+        //   `${shopId}:${subscriptionPrice}:${invoiceId}:${robokassaPassword1}`
+        // ).toString();
         // const keyboard = Markup.inlineKeyboard([
         //   Markup.button.url(
         //     messages.preSubscriptionText,
@@ -48,9 +96,9 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
         await ctx.reply("Ссылка на оплату", {
           reply_markup: keyboard.reply_markup,
         });
-        const signatureValue2 = MD5(
-          `${shopId}:${userId}:${robokassaPassword2}`
-        ).toString();
+        // const signatureValue2 = MD5(
+        //   `${shopId}:${userId}:${robokassaPassword2}`
+        // ).toString();
         // await ctx.reply("Проверить оплату", {
         //   reply_markup: Markup.inlineKeyboard([
         //     Markup.button.url(
@@ -59,6 +107,11 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
         //     ),
         //   ]).reply_markup,
         // });
+
+        await ctx.reply(
+          "Для проверки подписки введите свой Email, введенный Вами в форме оплаты:"
+        );
+        ctx.session.activeStep = "subscribe";
       }
     } catch (error) {
       console.error("Ошибка при проверке подписки пользователя:", error);
