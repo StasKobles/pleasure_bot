@@ -40,7 +40,7 @@ export const subscriptionTextHandler = async (
             // Обновление user_id в таблице emails
             const updateEmailResult = await pool.query(
               "UPDATE emails SET user_id = $1 WHERE email = $2",
-              [ctx.from.id.toString(), email]
+              [ctx.from.id, email]
             );
 
             if (updateEmailResult.rowCount && updateEmailResult.rowCount > 0) {
