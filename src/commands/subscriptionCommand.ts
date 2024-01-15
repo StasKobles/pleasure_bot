@@ -24,9 +24,11 @@ export const subscriptionTextHandler = async (
 
   // Запрос в базу данных
   try {
-    const result = await pool.query("SELECT * FROM emails WHERE email = $1", [
-      email,
-    ]);
+    const result = await pool.query(
+      "SELECT * FROM emails WHERE email = $1 AND user_id != 1",
+      [email]
+    );
+
     if (result.rowCount && result.rowCount > 0) {
       try {
         const updateResult = await pool.query(
@@ -35,11 +37,36 @@ export const subscriptionTextHandler = async (
         );
 
         if (updateResult.rowCount && updateResult.rowCount > 0) {
-          ctx.session.activeStep = undefined;
-          ctx.reply(messages.successfulSubscriptionMessage);
-          // Отправка уведомления пользователю, если необходимо
+          try {
+            // Обновление user_id в таблице emails
+            const updateEmailResult = await pool.query(
+              "UPDATE emails SET user_id = $1 WHERE email = $2",
+              [ctx.from.id, email]
+            );
+
+            if (updateEmailResult.rowCount && updateEmailResult.rowCount > 0) {
+              console.log(
+                `Email обновлён для пользователя с ID: ${ctx.from.id}`
+              );
+            } else {
+              console.log("Email не был обновлен в базе данных.");
+            }
+
+            ctx.session.activeStep = undefined;
+            ctx.reply(messages.successfulSubscriptionMessage);
+            // Отправка уведомления пользователю, если необходимо
+          } catch (error) {
+            console.error(
+              "Ошибка при обновлении email пользователя в базе данных:",
+              error
+            );
+            // Отправка сообщения об ошибке пользователю, если необходимо
+          }
+          // Дополнительная логика при необходимости
         } else {
-          // Обработка ситуации, когда обновление не произошло
+          ctx.reply(
+            "Совпадений не найдено. Проверьте данные и отправьте снова."
+          );
         }
       } catch (error) {
         console.error(
