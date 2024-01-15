@@ -25,7 +25,7 @@ export const subscriptionTextHandler = async (
   // Запрос в базу данных
   try {
     const result = await pool.query(
-      "SELECT * FROM emails WHERE email = $1 AND user_id != 1",
+      "SELECT * FROM emails WHERE email = $1 AND user_id = 1",
       [email]
     );
 
@@ -65,7 +65,7 @@ export const subscriptionTextHandler = async (
           // Дополнительная логика при необходимости
         } else {
           ctx.reply(
-            "Ошибка при обновлении пользователя в базе данных. Попробуйте еще раз."
+            "Совпадений не найдено. Проверьте данные и отправьте снова."
           );
         }
       } catch (error) {
