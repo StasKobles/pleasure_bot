@@ -25,8 +25,8 @@ export const subscriptionTextHandler = async (
   // Запрос в базу данных
   try {
     const result = await pool.query(
-      "SELECT * FROM emails WHERE email = $1 AND user_id = $2",
-      [email, ctx.from.id.toString()]
+      "SELECT * FROM emails WHERE email = $1 AND user_id = 1",
+      [email]
     );
     if (result.rowCount && result.rowCount > 0) {
       try {
