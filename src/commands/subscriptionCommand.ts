@@ -52,7 +52,12 @@ export const subscriptionTextHandler = async (
             }
 
             ctx.session.activeStep = undefined;
-            ctx.reply(messages.successfulSubscriptionMessage);
+            await ctx.reply(
+              messages.successfulSubscriptionMessage,
+              Markup.inlineKeyboard([
+                Markup.button.callback("Перейти к заданиям", "addPleasure_action"),
+              ])
+            );
             // Отправка уведомления пользователю, если необходимо
           } catch (error) {
             console.error(
@@ -168,41 +173,31 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
     }
   });
 
-  bot.on("pre_checkout_query", async (ctx) => {
-    await ctx.answerPreCheckoutQuery(true);
-  });
+  // bot.on("pre_checkout_query", async (ctx) => {
+  //   await ctx.answerPreCheckoutQuery(true);
+  // });
 
-  bot.on("successful_payment", async (ctx) => {
-    const userId = ctx.from.id;
+  // bot.on("successful_payment", async (ctx) => {
+  //   const userId = ctx.from.id;
 
-    try {
-      // Обновление статуса подписки в базе данных
-      await pool.query(
-        "UPDATE users SET subscription = TRUE WHERE user_id = $1",
-        [userId]
-      );
-      const res = await pool.query(
-        "SELECT COUNT(*) FROM tasks WHERE user_id = $1",
-        [userId]
-      );
-      const taskCount = parseInt(res.rows[0].count);
-      // Отправка сообщения об успешной оплате
-      await ctx.reply(
-        messages.successfulSubscriptionMessage,
-        taskCount === 33
-          ? undefined
-          : Markup.inlineKeyboard([
-              Markup.button.callback(
-                "Перейти к заданиям",
-                "addPleasure_action"
-              ),
-            ])
-      );
-    } catch (error) {
-      console.error(error);
-      ctx.reply(messages.paymentError);
-    }
-  });
+  //   try {
+  //     // Обновление статуса подписки в базе данных
+  //     await pool.query(
+  //       "UPDATE users SET subscription = TRUE WHERE user_id = $1",
+  //       [userId]
+  //     );
+  //     // Отправка сообщения об успешной оплате
+  //     await ctx.reply(
+  //       messages.successfulSubscriptionMessage,
+  //       Markup.inlineKeyboard([
+  //         Markup.button.callback("Перейти к заданиям", "addPleasure_action"),
+  //       ])
+  //     );
+  //   } catch (error) {
+  //     console.error(error);
+  //     ctx.reply(messages.paymentError);
+  //   }
+  // });
 };
 
 // import { Markup, Telegraf } from "telegraf";
