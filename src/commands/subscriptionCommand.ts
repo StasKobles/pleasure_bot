@@ -36,9 +36,7 @@ export const subscriptionTextHandler = async (
 
         if (updateResult.rowCount && updateResult.rowCount > 0) {
           ctx.session.activeStep = undefined;
-          console.log(
-            `Подписка обновлена для пользователя с ID: ${ctx.from.id}`
-          );
+          ctx.reply(messages.successfulSubscriptionMessage);
           // Отправка уведомления пользователю, если необходимо
         } else {
           // Обработка ситуации, когда обновление не произошло
@@ -108,10 +106,12 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
         //   ]).reply_markup,
         // });
 
-        await ctx.reply(
-          "Для проверки подписки введите свой Email, введенный Вами в форме оплаты:"
-        );
-        ctx.session.activeStep = "subscribe";
+        setTimeout(() => {
+          ctx.reply(
+            "Для проверки подписки введите свой Email, введенный Вами в форме оплаты:"
+          );
+          ctx.session.activeStep = "subscribe";
+        }, 5000);
       }
     } catch (error) {
       console.error("Ошибка при проверке подписки пользователя:", error);
