@@ -31,7 +31,7 @@ export async function restApi() {
         await pool.query("UPDATE emails SET isActive = true WHERE email = $1", [email]);
       } else {
         // Email не существует, добавляем новую запись
-        await pool.query("INSERT INTO emails (email, isActive) VALUES ($1, true)", [email]);
+        await pool.query("INSERT INTO emails (email, isActive, user_id) VALUES ($1, true, 1)", [email]);
       }
   
       res.send("Обновление подписки выполнено");
