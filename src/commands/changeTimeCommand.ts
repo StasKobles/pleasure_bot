@@ -7,7 +7,10 @@ export const changeTimeCommand = async (bot: Telegraf<MyContext>) => {
   async function handlerChangeTime(ctx: MyContext) {
     ctx.session.activeStep = "changeTime";
 
-    await ctx.reply("Выберите удобное время(по МСК):", timeButtons);
+    await ctx.reply(
+      "Теперь выберите время, когда вам будет удобно получать задания.\nВыберите удобное время (по МСК):",
+      timeButtons
+    );
   }
 
   bot.command("changetime", async (ctx) => {
@@ -29,7 +32,9 @@ export const changeTimeCommand = async (bot: Telegraf<MyContext>) => {
         selectedTime,
         userId,
       ]);
-      ctx.reply(`Время успешно изменено на ${selectedTime}.`);
+      ctx.reply(
+        `Время успешно изменено на ${selectedTime}.\nТеперь Вы будете получать задания по этому времени.`
+      );
     } catch (error) {
       console.error(error);
       ctx.reply("Произошла ошибка при изменении времени.");
