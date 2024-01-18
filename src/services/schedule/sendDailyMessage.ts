@@ -203,7 +203,7 @@ export async function sendDailyMessage(bot: Telegraf<MyContext>) {
       await ctx.reply(`Ваше задание: ${taskText}`);
     }
     ctx.session.todayTask = { taskId: taskId, text: taskText };
-    await ctx.reply(messages.completionMessage);
+    await ctx.reply(messages.completionMessage, { parse_mode: "Markdown" });
     ctx.session.isTaskChanged = false;
     ctx.session.activeStep = "questAnswer";
   });
