@@ -122,7 +122,7 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
           ),
         ]);
 
-        await ctx.reply("Ссылка на оплату", {
+        await ctx.reply("Форма оплаты", {
           reply_markup: keyboard.reply_markup,
         });
         // const signatureValue2 = MD5(
