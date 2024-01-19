@@ -118,7 +118,7 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
         const keyboard = Markup.inlineKeyboard([
           Markup.button.url(
             messages.preSubscriptionText,
-            `https://auth.robokassa.ru/RecurringSubscriptionPage/Subscription/Subscribe?SubscriptionId=0a1bf99b-968f-485c-9fb4-587268ebab49`
+            `https://auth.robokassa.ru/RecurringSubscriptionPage/Subscription/Subscribe?SubscriptionId=55a5e1d6-5468-42a1-8d8a-52224cec5ef0`
           ),
         ]);
 
