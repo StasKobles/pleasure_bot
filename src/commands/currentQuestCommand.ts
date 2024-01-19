@@ -47,7 +47,7 @@ async function sendUserTask(
       : await getDefaultTaskText(taskId);
   if (taskText) {
     await ctx.reply(`Ваше задание: ${taskText}`);
-    await ctx.reply(messages.completionMessage, { parse_mode: "Markdown" });
+    await ctx.reply(messages.completionMessage, { parse_mode: "MarkdownV2" });
     ctx.session.activeStep = "questAnswer";
   }
 }
@@ -56,7 +56,7 @@ export const currentQuestCommand = async (bot: Telegraf<MyContext>) => {
   bot.command("currentquest", async (ctx) => {
     if (ctx.session.todayTask && ctx.session.todayTask.text) {
       await ctx.reply(`Ваше задание: ${ctx.session.todayTask.text}`);
-      await ctx.reply(messages.completionMessage, { parse_mode: "Markdown" });
+      await ctx.reply(messages.completionMessage, { parse_mode: "MarkdownV2" });
       ctx.session.activeStep = "questAnswer";
     } else {
       const res = await getUserData(ctx.from.id);
