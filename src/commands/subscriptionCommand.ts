@@ -14,7 +14,7 @@ export const subscriptionTextHandler = async (
     }
   >
 ) => {
-  const email = ctx.message.text;
+  const email = ctx.message.text.toLowerCase();
 
   // Проверка валидности email
   if (!isValidEmail(email)) {
