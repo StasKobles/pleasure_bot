@@ -399,7 +399,11 @@ FodyWeavers.xsd
 
 #ENV
 .env
+.env.dev
 
 #dist
 dist/
 .vscode/
+
+.eslintrc.js
+.prettierrc

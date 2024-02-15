@@ -1,5 +1,5 @@
-import { Pool } from "pg";
-import { sqlUrl } from "../../config/config";
+import { Pool } from 'pg';
+import { sqlUrl } from '../../config/config';
 
 const pool = new Pool({ connectionString: sqlUrl });
 

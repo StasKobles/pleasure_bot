@@ -1,6 +1,6 @@
-import { NarrowedContext } from "telegraf";
-import { Message, Update } from "telegraf/typings/core/types/typegram";
-import { MyContext } from "../models/session";
+import { NarrowedContext } from 'telegraf';
+import { Message, Update } from 'telegraf/typings/core/types/typegram';
+import { MyContext } from '../models/session';
 
 export const currentQuestTaskHandler = async (
   ctx: NarrowedContext<
@@ -11,14 +11,14 @@ export const currentQuestTaskHandler = async (
     }
   >
 ) => {
-  if (ctx.message?.text?.startsWith("/")) {
+  if (ctx.message?.text?.startsWith('/')) {
     await ctx.reply(
-      "Пожалуйста, сначала отправьте отчет о выполнении задания."
+      'Пожалуйста, сначала отправьте отчет о выполнении задания.'
     );
     return;
   } else {
     await ctx.reply(
-      "Пожалуйста, отправьте свое сообщение ЕЩЕ РАЗ и приложите к нему фото выполненного задания"
+      'Пожалуйста, запищите Ваш ответ в виде голосового сообщения.'
     );
   }
 };
