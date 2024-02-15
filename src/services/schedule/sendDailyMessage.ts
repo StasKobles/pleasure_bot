@@ -1,8 +1,8 @@
-import { Telegraf } from "telegraf";
-import { questConfirmButtons } from "../../keyboards/keyboards";
-import { MyContext } from "../../models/session";
-import * as messages from "../../messages/main";
-import pool from "../sql";
+import { Telegraf } from 'telegraf';
+import { questConfirmButtons } from '../../keyboards/keyboards';
+import { MyContext } from '../../models/session';
+import * as messages from '../../messages/main';
+import pool from '../sql';
 
 async function getUsersAndTheirTimes() {
   try {
@@ -16,7 +16,7 @@ async function getUsersAndTheirTimes() {
     `);
     return res.rows;
   } catch (error) {
-    console.error("Ошибка при получении данных из базы:", error);
+    console.error('Ошибка при получении данных из базы:', error);
     return [];
   }
 }
@@ -25,20 +25,20 @@ async function getRandomTask(userId: number, excludeTaskId: number) {
   try {
     // Получаем список выполненных заданий пользователя
     const completedTasksRes = await pool.query(
-      "SELECT completed_tasks FROM users WHERE user_id = $1",
+      'SELECT completed_tasks FROM users WHERE user_id = $1',
       [userId]
     );
     const completedTasks = completedTasksRes.rows[0]?.completed_tasks || [];
 
     // Получаем список всех заданий по умолчанию
     const defaultTasksRes = await pool.query(
-      "SELECT task_id, quest_text FROM default_tasks"
+      'SELECT task_id, quest_text FROM default_tasks'
     );
     const defaultTasks = defaultTasksRes.rows;
 
     // Получаем список незавершенных заданий пользователя, исключая текущее активное задание
     const userTasksRes = await pool.query(
-      "SELECT task_id, quest_text FROM tasks WHERE user_id = $1 AND is_completed = FALSE AND task_id != $2",
+      'SELECT task_id, quest_text FROM tasks WHERE user_id = $1 AND is_completed = FALSE AND task_id != $2',
       [userId, excludeTaskId]
     );
     const userTasks = userTasksRes.rows;
@@ -71,7 +71,7 @@ async function getRandomTask(userId: number, excludeTaskId: number) {
 
     return randomTask || null;
   } catch (error) {
-    console.error("Ошибка при получении случайного задания из базы:", error);
+    console.error('Ошибка при получении случайного задания из базы:', error);
     return null;
   }
 }
@@ -91,26 +91,26 @@ function weightedRandomSelect<T>(items: Array<{ item: T; weight: number }>): T {
 export async function getUserTaskText(taskId: number) {
   try {
     const taskRes = await pool.query(
-      "SELECT quest_text FROM tasks WHERE task_id = $1",
+      'SELECT quest_text FROM tasks WHERE task_id = $1',
       [taskId]
     );
-    return taskRes.rows[0]?.quest_text || "";
+    return taskRes.rows[0]?.quest_text || '';
   } catch (error) {
-    console.error("Ошибка при получении текста задания из базы:", error);
-    return "";
+    console.error('Ошибка при получении текста задания из базы:', error);
+    return '';
   }
 }
 
 export async function getDefaultTaskText(taskId: number) {
   try {
     const taskRes = await pool.query(
-      "SELECT quest_text FROM default_tasks WHERE task_id = $1",
+      'SELECT quest_text FROM default_tasks WHERE task_id = $1',
       [taskId]
     );
-    return taskRes.rows[0]?.quest_text || "";
+    return taskRes.rows[0]?.quest_text || '';
   } catch (error) {
-    console.error("Ошибка при получении текста задания из базы:", error);
-    return "";
+    console.error('Ошибка при получении текста задания из базы:', error);
+    return '';
   }
 }
 
@@ -123,7 +123,7 @@ export async function sendDailyMessage(bot: Telegraf<MyContext>) {
     // Определение времени отправки задания
     // ...
 
-    const [hours, minutes] = user.quest_time.split(":").map(Number);
+    const [hours, minutes] = user.quest_time.split(':').map(Number);
     const userTime = new Date(currentTime.setHours(hours, minutes, 0, 0));
 
     if (
@@ -133,7 +133,7 @@ export async function sendDailyMessage(bot: Telegraf<MyContext>) {
       try {
         // Получение активного задания пользователя
         const activeTaskRes = await pool.query(
-          "SELECT active_task FROM users WHERE user_id = $1",
+          'SELECT active_task FROM users WHERE user_id = $1',
           [user.user_id]
         );
         const activeTaskId = activeTaskRes.rows[0]?.active_task;
@@ -151,15 +151,15 @@ export async function sendDailyMessage(bot: Telegraf<MyContext>) {
           // Обновление активного задания пользователя
           try {
             await pool.query(
-              "UPDATE users SET active_task = $1, is_sent_today = TRUE WHERE user_id = $2",
+              'UPDATE users SET active_task = $1, is_sent_today = TRUE WHERE user_id = $2',
               [randomTask.task_id, user.user_id]
             );
           } catch (error) {
-            console.error("Ошибка при получение задания:", error);
+            console.error('Ошибка при получение задания:', error);
           }
         }
       } catch (error) {
-        console.error("Ошибка при отправке задания:", error);
+        console.error('Ошибка при отправке задания:', error);
       }
     }
   }
@@ -175,7 +175,7 @@ export async function sendDailyMessage(bot: Telegraf<MyContext>) {
         `Ваше новое задание: ${newTask.quest_text}`,
         questConfirmButtons(newTask.task_id, !ctx.session.isTaskChanged)
       );
-      await pool.query("UPDATE users SET active_task = $1 WHERE user_id = $2", [
+      await pool.query('UPDATE users SET active_task = $1 WHERE user_id = $2', [
         newTask.task_id,
         userId,
       ]);
@@ -183,13 +183,12 @@ export async function sendDailyMessage(bot: Telegraf<MyContext>) {
         ctx.session.isTaskChanged = true;
       }
     } else {
-      await ctx.reply("Больше нет доступных заданий.");
+      await ctx.reply('Больше нет доступных заданий.');
     }
   });
   bot.action(/accept_task_(\d+)/, async (ctx) => {
     // Обработка принятия задания
     const taskId = parseInt(ctx.match[1]);
-    const userId = ctx.from?.id;
 
     // Удаление кнопок
     ctx.deleteMessage();
@@ -203,8 +202,8 @@ export async function sendDailyMessage(bot: Telegraf<MyContext>) {
       await ctx.reply(`Ваше задание: ${taskText}`);
     }
     ctx.session.todayTask = { taskId: taskId, text: taskText };
-    await ctx.reply(messages.completionMessage, { parse_mode: "Markdown" });
+    await ctx.reply(messages.completionMessage, { parse_mode: 'Markdown' });
     ctx.session.isTaskChanged = false;
-    ctx.session.activeStep = "questAnswer";
+    ctx.session.activeStep = 'questAnswer';
   });
 }

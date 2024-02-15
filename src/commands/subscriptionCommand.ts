@@ -1,9 +1,9 @@
-import { Markup, NarrowedContext, Telegraf } from "telegraf";
-import { Message, Update } from "telegraf/typings/core/types/typegram";
-import * as messages from "../messages/main";
-import { MyContext } from "../models/session";
-import pool from "../services/sql";
-import { isValidEmail } from "../utils/isValidEmail";
+import { Markup, NarrowedContext, Telegraf } from 'telegraf';
+import { Message, Update } from 'telegraf/typings/core/types/typegram';
+import * as messages from '../messages/main';
+import { MyContext } from '../models/session';
+import pool from '../services/sql';
+import { isValidEmail } from '../utils/isValidEmail';
 
 export const subscriptionTextHandler = async (
   ctx: NarrowedContext<
@@ -18,20 +18,20 @@ export const subscriptionTextHandler = async (
 
   // Проверка валидности email
   if (!isValidEmail(email)) {
-    ctx.reply("Неверный формат email. Пожалуйста, введите корректный email.");
+    ctx.reply('Неверный формат email. Пожалуйста, введите корректный email.');
     return;
   }
 
   // Запрос в базу данных
   try {
     const result = await pool.query(
-      "SELECT * FROM emails WHERE email = $1 AND user_id = 1",
+      'SELECT * FROM emails WHERE email = $1 AND user_id = 1',
       [email]
     );
     if (result.rowCount && result.rowCount > 0) {
       try {
         const updateResult = await pool.query(
-          "UPDATE users SET subscription = true, email = $1 WHERE user_id = $2",
+          'UPDATE users SET subscription = true, email = $1 WHERE user_id = $2',
           [email, ctx.from.id]
         );
 
@@ -39,7 +39,7 @@ export const subscriptionTextHandler = async (
           try {
             // Обновление user_id в таблице emails
             const updateEmailResult = await pool.query(
-              "UPDATE emails SET user_id = $1 WHERE email = $2",
+              'UPDATE emails SET user_id = $1 WHERE email = $2',
               [ctx.from.id, email]
             );
 
@@ -48,20 +48,23 @@ export const subscriptionTextHandler = async (
                 `Email обновлён для пользователя с ID: ${ctx.from.id}`
               );
             } else {
-              console.log("Email не был обновлен в базе данных.");
+              console.log('Email не был обновлен в базе данных.');
             }
 
             ctx.session.activeStep = undefined;
             await ctx.reply(
               messages.successfulSubscriptionMessage,
               Markup.inlineKeyboard([
-                Markup.button.callback("Перейти к заданиям", "addPleasure_action"),
+                Markup.button.callback(
+                  'Перейти к заданиям',
+                  'addPleasure_action'
+                ),
               ])
             );
             // Отправка уведомления пользователю, если необходимо
           } catch (error) {
             console.error(
-              "Ошибка при обновлении email пользователя в базе данных:",
+              'Ошибка при обновлении email пользователя в базе данных:',
               error
             );
             // Отправка сообщения об ошибке пользователю, если необходимо
@@ -69,23 +72,23 @@ export const subscriptionTextHandler = async (
           // Дополнительная логика при необходимости
         } else {
           ctx.reply(
-            "Совпадений не найдено. Проверьте данные и отправьте снова."
+            'Совпадений не найдено. Проверьте данные и отправьте снова.'
           );
         }
       } catch (error) {
         console.error(
-          "Ошибка при обновлении пользователя в базе данных:",
+          'Ошибка при обновлении пользователя в базе данных:',
           error
         );
         // Отправка сообщения об ошибке пользователю, если необходимо
       }
       // Дополнительная логика при необходимости
     } else {
-      ctx.reply("Совпадений не найдено. Проверьте данные и отправьте снова.");
+      ctx.reply('Совпадений не найдено. Проверьте данные и отправьте снова.');
     }
   } catch (error) {
-    console.error("Ошибка при запросе к базе данных:", error);
-    ctx.reply("Произошла ошибка при обработке вашего запроса.");
+    console.error('Ошибка при запросе к базе данных:', error);
+    ctx.reply('Произошла ошибка при обработке вашего запроса.');
   }
 };
 export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
@@ -95,7 +98,7 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
     try {
       // Получение информации о подписке пользователя
       const result = await pool.query(
-        "SELECT subscription FROM users WHERE user_id = $1",
+        'SELECT subscription FROM users WHERE user_id = $1',
         [userId]
       );
 
@@ -103,7 +106,7 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
       const isSubscribed = result.rows[0]?.subscription || false;
 
       if (isSubscribed) {
-        await ctx.reply("Вы уже подписаны.");
+        await ctx.reply('Вы уже подписаны.');
       } else {
         // const invoiceId = 1000;
         // const signatureValue1 = MD5(
@@ -122,7 +125,7 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
           ),
         ]);
 
-        await ctx.reply("Форма оплаты", {
+        await ctx.reply('Форма оплаты', {
           reply_markup: keyboard.reply_markup,
         });
         // const signatureValue2 = MD5(
@@ -139,20 +142,20 @@ export const subscriptionCommand = async (bot: Telegraf<MyContext>) => {
 
         setTimeout(() => {
           ctx.reply(
-            "Для проверки подписки введите свой Email, введенный Вами в форме оплаты:"
+            'Для проверки подписки введите свой Email, введенный Вами в форме оплаты:'
           );
-          ctx.session.activeStep = "subscribe";
+          ctx.session.activeStep = 'subscribe';
         }, 5000);
       }
     } catch (error) {
-      console.error("Ошибка при проверке подписки пользователя:", error);
-      await ctx.reply("Произошла ошибка при проверке подписки.");
+      console.error('Ошибка при проверке подписки пользователя:', error);
+      await ctx.reply('Произошла ошибка при проверке подписки.');
     }
   };
-  bot.command("subscribe", async (ctx) => {
+  bot.command('subscribe', async (ctx) => {
     await subscribe(ctx);
   });
-  bot.action("subscribe_button", async (ctx) => {
+  bot.action('subscribe_button', async (ctx) => {
     try {
       await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
       await ctx.reply(messages.subscriptionWelcomeMessage);

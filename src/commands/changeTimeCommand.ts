@@ -1,23 +1,23 @@
-import { Telegraf } from "telegraf";
-import { timeButtons } from "../keyboards/keyboards";
-import { MyContext } from "../models/session";
-import pool from "../services/sql";
+import { Telegraf } from 'telegraf';
+import { timeButtons } from '../keyboards/keyboards';
+import { MyContext } from '../models/session';
+import pool from '../services/sql';
 
 export const changeTimeCommand = async (bot: Telegraf<MyContext>) => {
   async function handlerChangeTime(ctx: MyContext) {
-    ctx.session.activeStep = "changeTime";
+    ctx.session.activeStep = 'changeTime';
 
     await ctx.reply(
-      "Теперь выберите время, когда вам будет удобно получать задания.\nВыберите удобное время (по МСК):",
+      'Теперь выберите время, когда вам будет удобно получать задания.\nВыберите удобное время (по МСК):',
       timeButtons
     );
   }
 
-  bot.command("changetime", async (ctx) => {
+  bot.command('changetime', async (ctx) => {
     handlerChangeTime(ctx);
   });
 
-  bot.action("changeTime_action", async (ctx) => {
+  bot.action('changeTime_action', async (ctx) => {
     await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
     handlerChangeTime(ctx);
   });
@@ -28,7 +28,7 @@ export const changeTimeCommand = async (bot: Telegraf<MyContext>) => {
     const userId = ctx.from?.id;
 
     try {
-      await pool.query("UPDATE users SET quest_time = $1 WHERE user_id = $2", [
+      await pool.query('UPDATE users SET quest_time = $1 WHERE user_id = $2', [
         selectedTime,
         userId,
       ]);
@@ -37,7 +37,7 @@ export const changeTimeCommand = async (bot: Telegraf<MyContext>) => {
       );
     } catch (error) {
       console.error(error);
-      ctx.reply("Произошла ошибка при изменении времени.");
+      ctx.reply('Произошла ошибка при изменении времени.');
     }
   });
 };

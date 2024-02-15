@@ -1,32 +1,32 @@
-import { Markup, Telegraf } from "telegraf";
-import { MyContext } from "../models/session";
-import * as messages from "../messages/main";
+import { Markup, Telegraf } from 'telegraf';
+import { MyContext } from '../models/session';
+import * as messages from '../messages/main';
 
 export const helpCommand = (bot: Telegraf<MyContext>) => {
   bot.help(async (ctx) => {
     const helpMessage =
-      "Какую помощь вы ищете? Выберите один из вариантов ниже:";
+      'Какую помощь вы ищете? Выберите один из вариантов ниже:';
     await ctx.reply(
       helpMessage,
       Markup.inlineKeyboard([
-        Markup.button.callback("Подписка", "help_subscription"),
-        Markup.button.callback("Работа бота", "help_bot_functionality"),
-        Markup.button.callback("Задания", "help_tasks"),
+        Markup.button.callback('Подписка', 'help_subscription'),
+        Markup.button.callback('Работа бота', 'help_bot_functionality'),
+        Markup.button.callback('Задания', 'help_tasks'),
       ])
     );
   });
 
   // Обработчики для каждой кнопки
-  bot.action("help_subscription", async (ctx) => {
-    ctx.session.activeStep = "subHelp";
+  bot.action('help_subscription', async (ctx) => {
+    ctx.session.activeStep = 'subHelp';
     await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
 
     // Логика обработки запроса помощи по подписке
     await ctx.reply(messages.preHelpText);
   });
 
-  bot.action("help_bot_functionality", async (ctx) => {
-    ctx.session.activeStep = "botHelp";
+  bot.action('help_bot_functionality', async (ctx) => {
+    ctx.session.activeStep = 'botHelp';
 
     await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
 
@@ -34,8 +34,8 @@ export const helpCommand = (bot: Telegraf<MyContext>) => {
     await ctx.reply(messages.preHelpText);
   });
 
-  bot.action("help_tasks", async (ctx) => {
-    ctx.session.activeStep = "subHelp";
+  bot.action('help_tasks', async (ctx) => {
+    ctx.session.activeStep = 'subHelp';
 
     await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
 

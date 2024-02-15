@@ -1,7 +1,7 @@
-import { Telegraf } from "telegraf";
-import { MyContext } from "../../models/session";
-import pool from "../sql";
-import { getRandomReminder } from "../../messages/reminders";
+import { Telegraf } from 'telegraf';
+import { MyContext } from '../../models/session';
+import pool from '../sql';
+import { getRandomReminder } from '../../messages/reminders';
 
 export async function sendReminder(bot: Telegraf<MyContext>) {
   try {
@@ -15,12 +15,12 @@ export async function sendReminder(bot: Telegraf<MyContext>) {
 
       // Обновление флага напоминания в БД
       await pool.query(
-        "UPDATE users SET is_reminder_sent = TRUE WHERE user_id = $1",
+        'UPDATE users SET is_reminder_sent = TRUE WHERE user_id = $1',
         [user.user_id]
       );
     }
   } catch (error) {
-    console.error("Ошибка при отправке напоминаний:", error);
+    console.error('Ошибка при отправке напоминаний:', error);
   }
 }
 
@@ -37,11 +37,11 @@ async function getUsersForReminder() {
         AND u.is_completed_today = FALSE
         AND u.is_reminder_sent = FALSE
       `,
-      [reminderTime.toISOString().slice(0, 19).replace("T", " ")]
+      [reminderTime.toISOString().slice(0, 19).replace('T', ' ')]
     ); // Форматирование для совместимости с SQL
     return res.rows;
   } catch (error) {
-    console.error("Ошибка при получении пользователей для напоминаний:", error);
+    console.error('Ошибка при получении пользователей для напоминаний:', error);
     return [];
   }
 }

@@ -1,9 +1,8 @@
-import { Markup, NarrowedContext, Telegraf } from "telegraf";
-import pool from "../services/sql";
-import { MyContext } from "../models/session";
-import { Update, Message } from "telegraf/typings/core/types/typegram";
-import * as messages from "../messages/main";
-
+import { Markup, NarrowedContext, Telegraf } from 'telegraf';
+import pool from '../services/sql';
+import { MyContext } from '../models/session';
+import { Update, Message } from 'telegraf/typings/core/types/typegram';
+import * as messages from '../messages/main';
 
 // export const pleasureListCommand = (bot: Telegraf<MyContext>) => {
 //   async function handlePleasureList(ctx: MyContext) {
@@ -49,44 +48,44 @@ import * as messages from "../messages/main";
 //   });
 // };
 export const addPleasureCommand = (bot: Telegraf<MyContext>) => {
-  async function addPleasure(ctx: MyContext, type: "registration" | "command") {
+  async function addPleasure(ctx: MyContext, type: 'registration' | 'command') {
     ctx.session.activeStep =
-      type === "registration" ? "pleasureList" : "addPleasure";
+      type === 'registration' ? 'pleasureList' : 'addPleasure';
     try {
       ctx.reply(
         messages.taskListPrompt,
         Markup.inlineKeyboard([
           Markup.button.callback(
-            "Добавить свое задание",
-            "addPleasureTextInput_action"
+            'Добавить свое задание',
+            'addPleasureTextInput_action'
           ),
-          Markup.button.callback("Далее", "changeTime_action"),
+          Markup.button.callback('Далее', 'changeTime_action'),
         ])
       );
     } catch (error) {
       console.error(error);
-      ctx.reply("Произошла ошибка при проверке ваших заданий.");
+      ctx.reply('Произошла ошибка при проверке ваших заданий.');
       ctx.session.activeStep = undefined;
     }
   }
 
-  bot.command("addpleasure", async (ctx) => {
-    addPleasure(ctx, "command");
+  bot.command('addpleasure', async (ctx) => {
+    addPleasure(ctx, 'command');
   });
 
-  bot.action("addPleasure_action", async (ctx) => {
+  bot.action('addPleasure_action', async (ctx) => {
     await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
-    addPleasure(ctx, "registration");
+    addPleasure(ctx, 'registration');
   });
 
-  bot.action("addPleasureTextInput_action", async (ctx) => {
+  bot.action('addPleasureTextInput_action', async (ctx) => {
     await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
-    await ctx.reply("Опиши свое удовольствие и отправь его мне.");
+    await ctx.reply('Опиши свое удовольствие и отправь его мне.');
   });
 
-  bot.action("resetButton_action", async (ctx) => {
+  bot.action('resetButton_action', async (ctx) => {
     await ctx.editMessageReplyMarkup({ inline_keyboard: [] });
-    await ctx.reply('Ваши задания добавлены в Вашу персональную базу!')
+    await ctx.reply('Ваши задания добавлены в Вашу персональную базу!');
   });
 };
 // export const pleasureListTextHandler = async (
@@ -138,28 +137,28 @@ export const addPleasureTextHandler = async (
       update_id: number;
     }
   >,
-  type: "registration" | "command"
+  type: 'registration' | 'command'
 ) => {
   const userId = ctx.from.id;
   const taskText = ctx.message.text;
 
   if (taskText.length < 3 || taskText.length > 200) {
-    ctx.reply("Введите корректное описание задания (от 3 до 200 символов)");
+    ctx.reply('Введите корректное описание задания (от 3 до 200 символов)');
   } else {
     await pool.query(
-      "INSERT INTO tasks (user_id, quest_text) VALUES ($1, $2)",
+      'INSERT INTO tasks (user_id, quest_text) VALUES ($1, $2)',
       [userId, taskText]
     );
     ctx.reply(
       `Задание добавлено. Хотите добавить еще?`,
       Markup.inlineKeyboard([
         Markup.button.callback(
-          "Да, добавить еще",
-          "addPleasureTextInput_action"
+          'Да, добавить еще',
+          'addPleasureTextInput_action'
         ),
         Markup.button.callback(
-          "Далее",
-          type === "registration" ? "changeTime_action" : "resetButton_action"
+          'Далее',
+          type === 'registration' ? 'changeTime_action' : 'resetButton_action'
         ),
       ])
     );

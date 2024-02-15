@@ -6,7 +6,11 @@
   "scripts": {
     "start:dev": "nodemon src/index.ts",
     "build": "tsc",
-    "start:prod": "node dist/index.js"
+    "start:prod": "node dist/index.js",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --ext .ts --fix",
+    "prettier:check": "prettier --check .",
+    "prettier:write": "prettier --write ."
   },
   "author": "Stas Kobles",
   "license": "ISC",
